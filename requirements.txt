@@ -7,3 +7,4 @@ pypdf
 fastapi
 uvicorn
 langchain-text-splitters
+faiss-cpu
