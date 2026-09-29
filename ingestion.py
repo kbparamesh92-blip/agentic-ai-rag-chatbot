@@ -1,28 +1,36 @@
-from pypdf import PdfReader
-from pathlib import Path
+import os
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from rag_graph import rag_app
+
+app = FastAPI(title="Agentic AI RAG Chatbot")
 
 
-def load_pdf(pdf_path):
-    reader = PdfReader(pdf_path)
-
-    documents = []
-
-    for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
-
-        if text.strip():
-            documents.append({
-                "text": text,
-                "page_number": page_number,
-                "source": Path(pdf_path).name
-            })
-
-    return documents
+class ChatRequest(BaseModel):
+    query: str
 
 
-if __name__ == "__main__":
-    pdf_path = "Ebook-Agentic-AI.pdf"
+@app.get("/")
+def home():
+    return {
+        "message": "Agentic AI RAG Chatbot API is running"
+    }
 
-    documents = load_pdf(pdf_path)
 
-    print(f"Loaded {len(documents)} pages")
+@app.post("/chat")
+def chat(request: ChatRequest):
+
+    result = rag_app.invoke({
+        "query": request.query,
+        "retrieved_context_chunks": [],
+        "final_answer": "",
+        "confidence_score": 0.0
+    })
+
+    return {
+        "query": request.query,
+        "final_answer": result["final_answer"],
+        "retrieved_context_chunks": result["retrieved_context_chunks"],
+        "confidence_score": result["confidence_score"]
+    } 
