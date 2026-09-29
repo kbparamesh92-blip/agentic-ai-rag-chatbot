@@ -6,3 +6,4 @@ pinecone
 pypdf
 fastapi
 uvicorn
+langchain-text-splitters
